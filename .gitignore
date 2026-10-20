@@ -19,5 +19,17 @@ benchmarks/graphs
 #confic
 opencode.jsonc
 
+.env
+.env.*
+!.env.example
+
+data/
+backups/
+logs/
+coverage/
+dist/
+*.log
+.DS_Store
+
 # ignore additional files using core.excludesFile
 # https://git-scm.com/docs/gitignore
