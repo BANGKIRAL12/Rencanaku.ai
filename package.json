@@ -1,0 +1,28 @@
+{
+  "name": "rencanaku.ai",
+  "version": "1.0.0",
+  "description": "aplikasi pendamping perencanaan proyek berbasis AI. Aplikasi membantu pengguna mengembangkan gagasan menjadi persyaratan yang terstruktur, dokumen konteks proyek, keputusan teknis, arsitektur, rencana implementasi, tugas, prompt coding agent, serta siklus perbaikan prompt berdasarkan hasil dan kesalahan yang dilaporkan dari coding agent eksternal.",
+  "keywords": [
+    "ai",
+    "agent",
+    "rencana"
+  ],
+  "homepage": "https://github.com/BANGKIRAL12/Rencanaku.ai#readme",
+  "bugs": {
+    "url": "https://github.com/BANGKIRAL12/Rencanaku.ai/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BANGKIRAL12/Rencanaku.ai.git"
+  },
+  "license": "ISC",
+  "author": "kiraladitya",
+  "type": "module",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
