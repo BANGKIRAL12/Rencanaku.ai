@@ -32,18 +32,23 @@ users).
 
 ## Stack & runtime
 
-- Node.js, `"type": "module"` (ESM everywhere; no mixing `require`/`import`). Docs baseline Node 24 LTS (fallback 22.x); there is **no** `.nvmrc`/.node-version yet — create one and pin before adding runtime deps.
+- Node.js, `"type": "module"` (ESM everywhere; no mixing `require`/`import`). Dikunci pada Node 24.x LTS (`.nvmrc` dan `.node-version` dipin ke `24.21.0`).
 - Single process **modular monolith**: Express + `better-sqlite3` (SQLite) + EJS server-rendered views. No SPA/bundler; interaction via vanilla JS + Fetch. Tailwind v4 compiled locally (no CDN in prod).
-- `marked` for Markdown — output **must be sanitized before injecting into DOM**; never treat user/AI content as trusted HTML.
+- `package-lock.json` telah di-track oleh git (dihapus dari `.gitignore`); instalasi CI/server menggunakan `npm ci`.
+- `marked` untuk Markdown — output **must be sanitized before injecting into DOM**; never treat user/AI content as trusted HTML.
 
 ## Commands
 
 - `npm run dev` — start server with watch (hot reload). Current `src/server.js` is empty, so it boots nothing meaningful yet.
 - `npm start` — production start.
 - `npm run build:css` — build Tailwind: `npx @tailwindcss/cli -i ./src/styles/input.css -o ./public/assets/app.css`. Rebuild after touching `src/styles/input.css`; committed output lives in `public/assets/`.
-- `npm test` — currently a broken placeholder (`echo ... && exit 1` then `&& vitest run`), so it always fails. **Do not report tests as passing**; use `npm run test:watch` (vitest) until tests are real, and run the actual failure to verify.
-- `npm ci` — clean, reproducible install per lockfile (require lockfile committed).
-- `npm ls --all` / `npm audit` — run before accepting dependency changes.
+- `npm test` — menjalankan seluruh rangkaian tes dengan `vitest run`.
+- `npm run test:watch` — mode watch pengujian menggunakan Vitest.
+- `npm run test:unit` — menjalankan tes unit di `test/unit`.
+- `npm run test:integration` — menjalankan tes integrasi di `test/integration`.
+- `npm run lint` — syntax check pada file entry point (`node --check src/server.js`).
+- `npm run check` — menjalankan lint dan test bertahap.
+- `npm run doctor` — skrip diagnosis kesehatan runtime Node, better-sqlite3, dan konfigurasi repo.
 
 ## Architecture rules (verify against ARCHITECTURE.md)
 

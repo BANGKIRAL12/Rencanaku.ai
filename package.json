@@ -23,12 +23,16 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1 && vitest run",
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "build:css": "npx @tailwindcss/cli -i ./src/styles/input.css -o ./public/assets/app.css",
+    "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm test"
+    "test:unit": "vitest run test/unit",
+    "test:integration": "vitest run test/integration",
+    "lint": "node --check src/server.js",
+    "check": "npm run lint && npm test",
+    "doctor": "node scripts/doctor.js"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.4",
@@ -48,6 +52,8 @@
     "express-session": "^1.19.0",
     "helmet": "^8.3.0",
     "marked": "^18.1.1",
+    "uuid": "^14.0.3",
+    "winston": "^3.19.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
