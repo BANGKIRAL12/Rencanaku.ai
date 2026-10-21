@@ -1,19 +1,20 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 /**
- * Middleware untuk menambahkan request ID ke setiap request
- * @param {import('express').Request} req - Request object
- * @param {import('express').Response} res - Response object
- * @param {import('express').NextFunction} next - Next function
+ * Middleware request ID.
+ * Memakai `crypto.randomUUID()` bawaan Node sehingga tidak perlu
+ * dependency tambahan.
  */
 export function requestId(req, res, next) {
-  // Buat request ID jika belum ada
-  if (!req.headers['x-request-id']) {
-    req.headers['x-request-id'] = uuidv4();
-  }
-  
-  // Simpan di locals untuk bisa digunakan di view
-  res.locals.requestId = req.headers['x-request-id'];
-  
+  const incoming = req.get('x-request-id');
+  const id =
+    typeof incoming === 'string' && /^[A-Za-z0-9._:-]{1,128}$/.test(incoming)
+      ? incoming
+      : randomUUID();
+
+  req.id = id;
+  res.setHeader('X-Request-Id', id);
+  res.locals.requestId = id;
+
   next();
 }

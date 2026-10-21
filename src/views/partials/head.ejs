@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title + ' — Rencanaku.ai' : 'Rencanaku.ai' %></title>
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body class="bg-surface-base text-white min-h-screen flex flex-col">
+  <header class="bg-surface-sidebar border-b border-white/5">
+    <div class="mx-auto flex max-w-6xl items-center justify-between p-4">
+      <a href="/" class="text-xl font-bold">Rencanaku.ai</a>
+      <nav aria-label="Navigasi utama">
+        <ul class="flex items-center gap-4 text-sm font-medium">
+          <li><a href="/" class="hover:text-primary-400">Beranda</a></li>
+          <li><a href="/proyek" class="hover:text-primary-400">Proyek</a></li>
+          <li><a href="/pengaturan" class="hover:text-primary-400">Pengaturan</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto w-full max-w-6xl flex-1 p-4">

@@ -1,72 +1,80 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import helmet from 'helmet';
-import { config } from './config/env.js';
-import { errorHandler } from './middleware/error-handler.js';
+import ejs from 'ejs';
+import { config as defaultConfig } from './config/env.js';
+import { createErrorHandler } from './middleware/error-handler.js';
+import { notFoundHandler } from './middleware/not-found.js';
 import { requestId } from './middleware/request-id.js';
-import { logger } from './core/logger/index.js';
 import { healthRoutes } from './routes/health.js';
+import { pageRoutes } from './routes/pages.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Membuat instance Express app tanpa mengeksekusi listen()
- * Ini memungkinkan pengujian dengan supertest
+ * Membuat instance Express app tanpa memanggil listen(), sehingga dapat
+ * diuji dengan supertest.
+ *
+ * @param {{
+ *   config?: import('./config/schema.js').AppConfig,
+ *   extraRoutes?: (app: import('express').Application) => void,
+ * }} [options] `extraRoutes` dipakai pengujian untuk mendaftarkan route
+ *   sebelum handler 404/error (mis. route yang sengaja melempar error).
  * @returns {import('express').Application}
  */
-export function createApp() {
+export function createApp(options = {}) {
+  const config = options.config ?? defaultConfig;
   const app = express();
 
-  // Middleware dasar
-  app.use(helmet({
-    // Konfigurasi Helmet yang disesuaikan dengan kebutuhan aplikasi
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'"],
-        fontSrc: ["'self'", "data:"],
-      },
-    },
-  }));
-  
-  // Body parser
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  app.disable('x-powered-by');
 
-  // Request ID
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:'],
+          connectSrc: ["'self'"],
+          fontSrc: ["'self'", 'data:'],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+          frameAncestors: ["'none'"],
+        },
+      },
+    }),
+  );
+
+  // Batas ukuran body eksplisit.
+  app.use(express.json({ limit: '1mb' }));
+  app.use(express.urlencoded({ extended: false, limit: '1mb' }));
+
   app.use(requestId);
 
-  // Routing
-  app.use('/health', healthRoutes);
-
-  // View engine (EJS)
+  // EJS: view root adalah src/views agar partial/layout bisa di-include
+  // dengan path relatif yang konsisten.
   app.set('view engine', 'ejs');
-  app.set('views', './src/views/pages');
+  app.set('views', path.join(__dirname, 'views'));
+  app.engine('ejs', ejs.__express);
 
-  // Static files
-  app.use('/assets', express.static('./public/assets'));
+  // Aset statis publik.
+  app.use('/assets', express.static(path.join(__dirname, '..', 'public', 'assets')));
 
-  // Route default untuk 404
-  app.get('/', (req, res) => {
-    res.render('index', {
-      title: 'Beranda',
-      layout: 'layouts/main',
-    });
-  });
+  app.use('/health', healthRoutes);
+  app.use('/', pageRoutes);
 
-  // Error handler (harus ditempatkan setelah semua route)
-  app.use(errorHandler);
+  if (typeof options.extraRoutes === 'function') {
+    options.extraRoutes(app);
+  }
 
-  // Error handler untuk uncaught exceptions
-  process.on('uncaughtException', (err) => {
-    logger.error('Uncaught Exception:', err);
-    process.exit(1);
-  });
+  // 404 harus dipasang sebelum error handler.
+  app.use(notFoundHandler);
 
-  process.on('unhandledRejection', (reason, promise) => {
-    logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    process.exit(1);
-  });
+  // Error handler terakhir.
+  app.use(createErrorHandler({ config }));
 
   return app;
 }
