@@ -1,22 +1,17 @@
 import { vi } from 'vitest';
+import { testEnv } from './test-env-values.js';
 
 /**
  * Environment minimal untuk pengujian. Nilai secret di sini adalah
  * nilai sintetis khusus tes, bukan rahasia nyata.
+ *
+ * Env yang sama sudah dipasang oleh `vitest.config.js` SEBELUM modul
+ * apa pun diimpor, sehingga modul yang membaca konfigurasi saat import
+ * (mis. `src/config/env.js`, logger, dan lapisan database) tidak pernah
+ * memanggil `process.exit` di dalam worker tes. Helper ini tetap
+ * diperlukan untuk override spesifik per tes.
  */
-export const testEnv = {
-  NODE_ENV: 'test',
-  PORT: '3000',
-  HOST: '127.0.0.1',
-  BASE_URL: 'http://127.0.0.1:3000/',
-  SESSION_SECRET: 'test-session-secret-value-000000000000',
-  CSRF_SECRET: 'test-csrf-secret-value-00000000000000',
-  LOG_LEVEL: 'error',
-  DATABASE_URL: 'file::memory:',
-  FILE_STORAGE_PATH: 'data/test-files',
-  RATE_LIMIT_WINDOW_MS: '900000',
-  RATE_LIMIT_MAX_REQUESTS: '100',
-};
+export { testEnv };
 
 /**
  * Pasang env tes pada process.env. `src/config/env.js` tidak membaca

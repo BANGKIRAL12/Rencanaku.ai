@@ -4,6 +4,7 @@ import express from 'express';
 import helmet from 'helmet';
 import ejs from 'ejs';
 import { config as defaultConfig } from './config/env.js';
+import { PUBLIC_ROOT, resolveDataPaths, assertDataPathsArePrivate } from './config/paths.js';
 import { createErrorHandler } from './middleware/error-handler.js';
 import { notFoundHandler } from './middleware/not-found.js';
 import { requestId } from './middleware/request-id.js';
@@ -16,6 +17,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * Membuat instance Express app tanpa memanggil listen(), sehingga dapat
  * diuji dengan supertest.
  *
+ * Fail-fast: konfigurasi path data diperiksa saat app dibuat. Bila
+ * direktori privat berada di dalam root statis publik, proses berhenti
+ * dengan pesan aman alih-alih Diam-diam menyajikan data pengguna lewat
+ * `express.static` (ARCHITECTURE §4, §11.5).
+ *
  * @param {{
  *   config?: import('./config/schema.js').AppConfig,
  *   extraRoutes?: (app: import('express').Application) => void,
@@ -25,6 +31,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  */
 export function createApp(options = {}) {
   const config = options.config ?? defaultConfig;
+
+  // Resolusi murni (tanpa efek samping filesystem): hanya validasi lokasi.
+  assertDataPathsArePrivate(resolveDataPaths(config));
+
   const app = express();
 
   app.disable('x-powered-by');
@@ -60,8 +70,9 @@ export function createApp(options = {}) {
   app.set('views', path.join(__dirname, 'views'));
   app.engine('ejs', ejs.__express);
 
-  // Aset statis publik.
-  app.use('/assets', express.static(path.join(__dirname, '..', 'public', 'assets')));
+  // Aset statis publik. Satu-satunya root yang disajikan ke browser;
+  // direktori data privat tidak pernah dimount di sini (lihat ADR 0005).
+  app.use('/assets', express.static(path.join(PUBLIC_ROOT, 'assets')));
 
   app.use('/health', healthRoutes);
   app.use('/', pageRoutes);

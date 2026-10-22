@@ -30,9 +30,11 @@
     "test:watch": "vitest",
     "test:unit": "vitest run test/unit",
     "test:integration": "vitest run test/integration",
-    "lint": "node --check src/server.js",
+    "lint": "node --check src/server.js && node --check src/app.js && node --check scripts/doctor.js && node --check scripts/migrate.js && node --check scripts/db-check.js",
     "check": "npm run lint && npm test",
-    "doctor": "node scripts/doctor.js"
+    "doctor": "node scripts/doctor.js",
+    "db:migrate": "node scripts/migrate.js",
+    "db:check": "node scripts/db-check.js"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.4",

@@ -9,8 +9,11 @@ const validEnv = {
   SESSION_SECRET: 'a'.repeat(32),
   CSRF_SECRET: 'b'.repeat(32),
   LOG_LEVEL: 'info',
-  DATABASE_URL: 'file:data/app.sqlite',
-  FILE_STORAGE_PATH: 'data/files',
+  DATA_DIR: 'data',
+  DATABASE_URL: 'file:app.sqlite',
+  FILE_STORAGE_PATH: 'files',
+  SQLITE_JOURNAL_MODE: 'wal',
+  SQLITE_BUSY_TIMEOUT_MS: '5000',
   RATE_LIMIT_WINDOW_MS: '900000',
   RATE_LIMIT_MAX_REQUESTS: '100',
 };

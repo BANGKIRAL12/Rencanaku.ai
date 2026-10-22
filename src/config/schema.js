@@ -49,14 +49,32 @@ export const configSchema = z.object({
     .default('info'),
 
   // Database & penyimpanan
+  // Semua path relatif di bawah data di-resolve relatif terhadap DATA_DIR
+  // (lihat ADR 0005). Nilai absolut tetap diterima untuk operator server.
+  DATA_DIR: z
+    .string({ error: 'wajib diisi' })
+    .min(1, 'tidak boleh kosong')
+    .default('data'),
   DATABASE_URL: z
     .string({ error: 'wajib diisi' })
     .min(1, 'tidak boleh kosong')
-    .default('file:data/app.sqlite'),
+    .default('file:app.sqlite'),
   FILE_STORAGE_PATH: z
     .string({ error: 'wajib diisi' })
     .min(1, 'tidak boleh kosong')
-    .default('data/files'),
+    .default('files'),
+  SQLITE_JOURNAL_MODE: z
+    .enum(['wal', 'delete', 'truncate', 'persist', 'memory', 'off'], {
+      error:
+        'harus salah satu dari: wal, delete, truncate, persist, memory, off',
+    })
+    .default('wal'),
+  SQLITE_BUSY_TIMEOUT_MS: z.coerce
+    .number({ error: 'harus berupa angka' })
+    .int('harus bilangan bulat')
+    .min(0, 'minimal 0')
+    .max(60000, 'maksimal 60000')
+    .default(5000),
 
   // Rate limiting
   RATE_LIMIT_WINDOW_MS: z.coerce
